@@ -1,0 +1,486 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="TicketingModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Agent">
+          <Key>
+            <PropertyRef Name="AgentCode" />
+          </Key>
+          <Property Name="AgentCode" Type="varchar" MaxLength="4" Nullable="false" />
+          <Property Name="AgentName" Type="varchar" MaxLength="255" Nullable="false" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'MMunasinghe_Ticketing.dbo.TicketCategory' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="TicketCategory">
+          <Key>
+            <PropertyRef Name="TicketCategoryCode" />
+            <PropertyRef Name="TicketCategory" />
+          </Key>
+          <Property Name="TicketCategoryCode" Type="varchar" MaxLength="3" Nullable="false" />
+          <Property Name="TicketCategory" Type="varchar" MaxLength="255" Nullable="false" />
+        </EntityType>
+        <EntityType Name="TicketsIssued">
+          <Key>
+            <PropertyRef Name="TicketId" />
+          </Key>
+          <Property Name="TicketNumber" Type="varchar" MaxLength="17" Nullable="false" />
+          <Property Name="AgentCode" Type="varchar" MaxLength="4" Nullable="false" />
+          <Property Name="Category" Type="varchar" MaxLength="50" />
+          <Property Name="TicketStatusCode" Type="varchar" MaxLength="4" />
+          <Property Name="ArrivedAt" Type="datetime" />
+          <Property Name="ArrivalConfirmedBy" Type="varchar" MaxLength="255" />
+          <Property Name="Paid" Type="date" />
+          <Property Name="Notes" Type="varchar" MaxLength="500" />
+          <Property Name="SoldTo" Type="varchar" MaxLength="255" />
+          <Property Name="Zone" Type="varchar" MaxLength="10" />
+          <Property Name="TicketId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TableNumber" Type="int" />
+          <Property Name="City" Type="varchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="TicketSiteUser">
+          <Key>
+            <PropertyRef Name="UserId" />
+          </Key>
+          <Property Name="UserId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserName" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="Password" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="Role" Type="varchar" MaxLength="20" Nullable="false" />
+        </EntityType>
+        <EntityType Name="TicketStatus">
+          <Key>
+            <PropertyRef Name="TicketStatusCode" />
+          </Key>
+          <Property Name="TicketStatusCode" Type="varchar" MaxLength="4" Nullable="false" />
+          <Property Name="TicketStatus" Type="nchar" MaxLength="50" />
+        </EntityType>
+        <Association Name="fk_Agent">
+          <End Role="Agent" Type="Self.Agent" Multiplicity="1" />
+          <End Role="TicketsIssued" Type="Self.TicketsIssued" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Agent">
+              <PropertyRef Name="AgentCode" />
+            </Principal>
+            <Dependent Role="TicketsIssued">
+              <PropertyRef Name="AgentCode" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_TicketStatus">
+          <End Role="TicketStatus" Type="Self.TicketStatus" Multiplicity="0..1" />
+          <End Role="TicketsIssued" Type="Self.TicketsIssued" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TicketStatus">
+              <PropertyRef Name="TicketStatusCode" />
+            </Principal>
+            <Dependent Role="TicketsIssued">
+              <PropertyRef Name="TicketStatusCode" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Function Name="GetAtTheDoorSummary" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="GetTableAllocations" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="ReportTicketAllUnpaid" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="ReportTicketSummary" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="SeachTickets" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="TicketNumber" Type="varchar" Mode="In" />
+          <Parameter Name="AgentCode" Type="varchar" Mode="In" />
+          <Parameter Name="TicketStatusCode" Type="varchar" Mode="In" />
+          <Parameter Name="Category" Type="varchar" Mode="In" />
+          <Parameter Name="SoldTo" Type="varchar" Mode="In" />
+          <Parameter Name="TableNo" Type="int" Mode="In" />
+          <Parameter Name="RcordCount" Type="int" Mode="In" />
+          <Parameter Name="RecordsPerPage" Type="int" Mode="In" />
+          <Parameter Name="PagingStartIndex" Type="int" Mode="In" />
+          <Parameter Name="TotalRecords" Type="int" Mode="InOut" />
+        </Function>
+        <Function Name="SeachTicketsWithWildCards" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="TicketNumber" Type="varchar" Mode="In" />
+          <Parameter Name="Category" Type="varchar" Mode="In" />
+          <Parameter Name="SoldBy" Type="varchar" Mode="In" />
+          <Parameter Name="SoldTo" Type="varchar" Mode="In" />
+          <Parameter Name="TableNo" Type="int" Mode="In" />
+          <Parameter Name="RcordCount" Type="int" Mode="In" />
+          <Parameter Name="RecordsPerPage" Type="int" Mode="In" />
+          <Parameter Name="PagingStartIndex" Type="int" Mode="In" />
+          <Parameter Name="TotalRecords" Type="int" Mode="InOut" />
+        </Function>
+        <Function Name="UpdateTicketNotesAndPaymentState" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="TicketId" Type="int" Mode="In" />
+          <Parameter Name="TicketStatusCode" Type="varchar" Mode="In" />
+          <Parameter Name="Notes" Type="varchar" Mode="In" />
+        </Function>
+        <EntityContainer Name="TicketingModelStoreContainer">
+          <EntitySet Name="Agent" EntityType="Self.Agent" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TicketsIssued" EntityType="Self.TicketsIssued" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TicketSiteUser" EntityType="Self.TicketSiteUser" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TicketStatus" EntityType="Self.TicketStatus" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TicketCategory" EntityType="Self.TicketCategory" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [TicketCategory].[TicketCategoryCode] AS [TicketCategoryCode], 
+    [TicketCategory].[TicketCategory] AS [TicketCategory]
+    FROM [dbo].[TicketCategory] AS [TicketCategory]</DefiningQuery>
+          </EntitySet>
+          <AssociationSet Name="fk_Agent" Association="Self.fk_Agent">
+            <End Role="Agent" EntitySet="Agent" />
+            <End Role="TicketsIssued" EntitySet="TicketsIssued" />
+          </AssociationSet>
+          <AssociationSet Name="fk_TicketStatus" Association="Self.fk_TicketStatus">
+            <End Role="TicketStatus" EntitySet="TicketStatus" />
+            <End Role="TicketsIssued" EntitySet="TicketsIssued" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="TicketingModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="TicketStatu">
+          <Key>
+            <PropertyRef Name="TicketStatusCode" />
+          </Key>
+          <Property Name="TicketStatusCode" Type="String" MaxLength="4" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="TicketStatus" Type="String" MaxLength="50" FixedLength="true" Unicode="true" />
+          <NavigationProperty Name="TicketsIssueds" Relationship="TicketingModel.fk_TicketStatus" FromRole="TicketStatu" ToRole="TicketsIssued" />
+        </EntityType>
+        <EntityContainer Name="TicketingEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="TicketStatus" EntityType="Self.TicketStatu" />
+          <EntitySet Name="Agents" EntityType="TicketingModel.Agent" />
+          <EntitySet Name="TicketCategories" EntityType="TicketingModel.TicketCategory" />
+          <EntitySet Name="TicketsIssueds" EntityType="TicketingModel.TicketsIssued" />
+          <AssociationSet Name="fk_Agent" Association="TicketingModel.fk_Agent">
+            <End Role="Agent" EntitySet="Agents" />
+            <End Role="TicketsIssued" EntitySet="TicketsIssueds" />
+          </AssociationSet>
+          <AssociationSet Name="fk_TicketStatus" Association="TicketingModel.fk_TicketStatus">
+            <End Role="TicketStatu" EntitySet="TicketStatus" />
+            <End Role="TicketsIssued" EntitySet="TicketsIssueds" />
+          </AssociationSet>
+          <FunctionImport Name="ReportTicketSummary" ReturnType="Collection(TicketingModel.ReportTicketSummary_Result)" />
+          <FunctionImport Name="ReportTicketAllUnpaid" ReturnType="Collection(TicketingModel.ReportTicketAllUnpaid_Result)" />
+          <EntitySet Name="TicketSiteUsers" EntityType="TicketingModel.TicketSiteUser" />
+          <FunctionImport Name="SeachTicketsWithWildCards" ReturnType="Collection(TicketingModel.SeachTicketsWithWildCards_Result)">
+            <Parameter Name="TicketNumber" Mode="In" Type="String" />
+            <Parameter Name="Category" Mode="In" Type="String" />
+            <Parameter Name="SoldBy" Mode="In" Type="String" />
+            <Parameter Name="SoldTo" Mode="In" Type="String" />
+            <Parameter Name="TableNo" Mode="In" Type="Int32" />
+            <Parameter Name="RcordCount" Mode="In" Type="Int32" />
+            <Parameter Name="RecordsPerPage" Mode="In" Type="Int32" />
+            <Parameter Name="PagingStartIndex" Mode="In" Type="Int32" />
+            <Parameter Name="TotalRecords" Mode="InOut" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="UpdateTicketNotesAndPaymentState">
+            <Parameter Name="TicketId" Mode="In" Type="Int32" />
+            <Parameter Name="TicketStatusCode" Mode="In" Type="String" />
+            <Parameter Name="Notes" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="SeachTickets" ReturnType="Collection(TicketingModel.SeachTickets_Result)">
+            <Parameter Name="TicketNumber" Mode="In" Type="String" />
+            <Parameter Name="AgentCode" Mode="In" Type="String" />
+            <Parameter Name="TicketStatusCode" Mode="In" Type="String" />
+            <Parameter Name="Category" Mode="In" Type="String" />
+            <Parameter Name="SoldTo" Mode="In" Type="String" />
+            <Parameter Name="TableNo" Mode="In" Type="Int32" />
+            <Parameter Name="RcordCount" Mode="In" Type="Int32" />
+            <Parameter Name="RecordsPerPage" Mode="In" Type="Int32" />
+            <Parameter Name="PagingStartIndex" Mode="In" Type="Int32" />
+            <Parameter Name="TotalRecords" Mode="InOut" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="GetTableAllocations" ReturnType="Collection(TicketingModel.GetTableAllocations_Result)" />
+          <FunctionImport Name="GetAtTheDoorSummary" ReturnType="Collection(TicketingModel.GetAtTheDoorSummary_Result)" />
+        </EntityContainer>
+        <EntityType Name="Agent">
+          <Key>
+            <PropertyRef Name="AgentCode" />
+          </Key>
+          <Property Name="AgentCode" Type="String" Nullable="false" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="AgentName" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="TicketsIssueds" Relationship="TicketingModel.fk_Agent" FromRole="Agent" ToRole="TicketsIssued" />
+        </EntityType>
+        <EntityType Name="TicketCategory">
+          <Key>
+            <PropertyRef Name="TicketCategoryCode" />
+            <PropertyRef Name="TicketCategory1" />
+          </Key>
+          <Property Name="TicketCategoryCode" Type="String" Nullable="false" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="TicketCategory1" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="TicketsIssued">
+          <Key>
+            <PropertyRef Name="TicketId" />
+          </Key>
+          <Property Name="TicketNumber" Type="String" Nullable="false" MaxLength="17" FixedLength="false" Unicode="false" />
+          <Property Name="AgentCode" Type="String" Nullable="false" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="Category" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="TicketStatusCode" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="ArrivedAt" Type="DateTime" Precision="3" />
+          <Property Name="ArrivalConfirmedBy" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Paid" Type="DateTime" Precision="0" />
+          <Property Name="Notes" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="SoldTo" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Zone" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="TicketId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <NavigationProperty Name="Agent" Relationship="TicketingModel.fk_Agent" FromRole="TicketsIssued" ToRole="Agent" />
+          <NavigationProperty Name="TicketStatu" Relationship="TicketingModel.fk_TicketStatus" FromRole="TicketsIssued" ToRole="TicketStatu" />
+          <Property Name="TableNumber" Type="Int32" />
+          <Property Name="City" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <Association Name="fk_Agent">
+          <End Type="TicketingModel.Agent" Role="Agent" Multiplicity="1" />
+          <End Type="TicketingModel.TicketsIssued" Role="TicketsIssued" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Agent">
+              <PropertyRef Name="AgentCode" />
+            </Principal>
+            <Dependent Role="TicketsIssued">
+              <PropertyRef Name="AgentCode" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_TicketStatus">
+          <End Type="TicketingModel.TicketStatu" Role="TicketStatu" Multiplicity="0..1" />
+          <End Type="TicketingModel.TicketsIssued" Role="TicketsIssued" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TicketStatu">
+              <PropertyRef Name="TicketStatusCode" />
+            </Principal>
+            <Dependent Role="TicketsIssued">
+              <PropertyRef Name="TicketStatusCode" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <ComplexType Name="ReportTicketSummary_Result">
+          <Property Type="String" Name="AgentName" Nullable="false" MaxLength="255" />
+          <Property Type="String" Name="AgentCode" Nullable="false" MaxLength="4" />
+          <Property Type="Int32" Name="NumberOfTickets" Nullable="true" />
+          <Property Type="String" Name="TicketCategory" Nullable="false" MaxLength="255" />
+          <Property Type="String" Name="Category" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="TicketStatusCode" Nullable="true" MaxLength="4" />
+          <Property Type="String" Name="TicketStatus" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="Zone" Nullable="true" MaxLength="10" />
+        </ComplexType>
+        <ComplexType Name="ReportTicketAllUnpaid_Result">
+          <Property Type="String" Name="AgentName" Nullable="false" MaxLength="255" />
+          <Property Type="String" Name="AgentCode" Nullable="false" MaxLength="4" />
+          <Property Type="Int32" Name="NumberOfTickets" Nullable="true" />
+          <Property Type="String" Name="TicketCategory" Nullable="false" MaxLength="255" />
+          <Property Type="String" Name="Category" Nullable="true" MaxLength="50" />
+          <Property Type="Decimal" Name="TotalOwing" Nullable="true" Precision="19" />
+        </ComplexType>
+        <EntityType Name="TicketSiteUser">
+          <Key>
+            <PropertyRef Name="UserId" />
+          </Key>
+          <Property Name="UserId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserName" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="Password" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="Role" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <ComplexType Name="SeachTicketsWithWildCards_Result">
+          <Property Type="Int32" Name="idx" Nullable="false" />
+          <Property Type="Int32" Name="TicketId" Nullable="false" />
+          <Property Type="String" Name="TicketNumber" Nullable="false" MaxLength="17" />
+          <Property Type="String" Name="AgentCode" Nullable="true" MaxLength="10" />
+          <Property Type="String" Name="Category" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="TicketStatusCode" Nullable="true" MaxLength="4" />
+          <Property Type="DateTime" Name="ArrivedAt" Nullable="true" Precision="23" />
+          <Property Type="String" Name="ArrivalConfirmedBy" Nullable="true" MaxLength="255" />
+          <Property Type="String" Name="AgentName" Nullable="true" MaxLength="255" />
+          <Property Type="String" Name="TicketStatus" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="SoldTo" Nullable="true" MaxLength="255" />
+          <Property Type="String" Name="Zone" Nullable="true" MaxLength="10" />
+          <Property Type="Int32" Name="TableNumber" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="SeachTickets_Result">
+          <Property Type="Int32" Name="idx" Nullable="false" />
+          <Property Type="Int32" Name="TicketId" Nullable="false" />
+          <Property Type="String" Name="TicketNumber" Nullable="false" MaxLength="17" />
+          <Property Type="String" Name="AgentCode" Nullable="true" MaxLength="10" />
+          <Property Type="String" Name="Category" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="TicketStatusCode" Nullable="true" MaxLength="4" />
+          <Property Type="DateTime" Name="ArrivedAt" Nullable="true" Precision="23" />
+          <Property Type="String" Name="ArrivalConfirmedBy" Nullable="true" MaxLength="255" />
+          <Property Type="String" Name="AgentName" Nullable="true" MaxLength="255" />
+          <Property Type="String" Name="TicketStatus" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="Zone" Nullable="true" MaxLength="10" />
+          <Property Type="String" Name="SoldTo" Nullable="true" MaxLength="255" />
+          <Property Type="Int32" Name="TableNumber" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="GetTableAllocations_Result">
+          <Property Type="String" Name="TableNumber" Nullable="true" MaxLength="11" />
+          <Property Type="Int32" Name="NumberOfPeople" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="GetAtTheDoorSummary_Result">
+          <Property Type="String" Name="TicketCategory" Nullable="true" MaxLength="255" />
+          <Property Type="Int32" Name="NumberArrived" Nullable="true" />
+          <Property Type="Int32" Name="NumberToArrive" Nullable="true" />
+          <Property Type="Int32" Name="TotalNumberOfTickets" Nullable="true" />
+        </ComplexType>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="TicketingModelStoreContainer" CdmEntityContainer="TicketingEntities">
+          <EntitySetMapping Name="TicketStatus">
+            <EntityTypeMapping TypeName="TicketingModel.TicketStatu">
+              <MappingFragment StoreEntitySet="TicketStatus">
+                <ScalarProperty Name="TicketStatusCode" ColumnName="TicketStatusCode" />
+                <ScalarProperty Name="TicketStatus" ColumnName="TicketStatus" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Agents">
+            <EntityTypeMapping TypeName="TicketingModel.Agent">
+              <MappingFragment StoreEntitySet="Agent">
+                <ScalarProperty Name="AgentName" ColumnName="AgentName" />
+                <ScalarProperty Name="AgentCode" ColumnName="AgentCode" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TicketCategories">
+            <EntityTypeMapping TypeName="TicketingModel.TicketCategory">
+              <MappingFragment StoreEntitySet="TicketCategory">
+                <ScalarProperty Name="TicketCategory1" ColumnName="TicketCategory" />
+                <ScalarProperty Name="TicketCategoryCode" ColumnName="TicketCategoryCode" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TicketsIssueds">
+            <EntityTypeMapping TypeName="TicketingModel.TicketsIssued">
+              <MappingFragment StoreEntitySet="TicketsIssued">
+                <ScalarProperty Name="City" ColumnName="City" />
+                <ScalarProperty Name="TableNumber" ColumnName="TableNumber" />
+                <ScalarProperty Name="TicketId" ColumnName="TicketId" />
+                <ScalarProperty Name="Zone" ColumnName="Zone" />
+                <ScalarProperty Name="SoldTo" ColumnName="SoldTo" />
+                <ScalarProperty Name="Notes" ColumnName="Notes" />
+                <ScalarProperty Name="Paid" ColumnName="Paid" />
+                <ScalarProperty Name="ArrivalConfirmedBy" ColumnName="ArrivalConfirmedBy" />
+                <ScalarProperty Name="ArrivedAt" ColumnName="ArrivedAt" />
+                <ScalarProperty Name="TicketStatusCode" ColumnName="TicketStatusCode" />
+                <ScalarProperty Name="Category" ColumnName="Category" />
+                <ScalarProperty Name="AgentCode" ColumnName="AgentCode" />
+                <ScalarProperty Name="TicketNumber" ColumnName="TicketNumber" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="ReportTicketSummary" FunctionName="TicketingModel.Store.ReportTicketSummary">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="TicketingModel.ReportTicketSummary_Result">
+                <ScalarProperty Name="AgentName" ColumnName="AgentName" />
+                <ScalarProperty Name="AgentCode" ColumnName="AgentCode" />
+                <ScalarProperty Name="NumberOfTickets" ColumnName="NumberOfTickets" />
+                <ScalarProperty Name="TicketCategory" ColumnName="TicketCategory" />
+                <ScalarProperty Name="Category" ColumnName="Category" />
+                <ScalarProperty Name="TicketStatusCode" ColumnName="TicketStatusCode" />
+                <ScalarProperty Name="TicketStatus" ColumnName="TicketStatus" />
+                <ScalarProperty Name="Zone" ColumnName="Zone" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="ReportTicketAllUnpaid" FunctionName="TicketingModel.Store.ReportTicketAllUnpaid">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="TicketingModel.ReportTicketAllUnpaid_Result">
+                <ScalarProperty Name="AgentName" ColumnName="AgentName" />
+                <ScalarProperty Name="AgentCode" ColumnName="AgentCode" />
+                <ScalarProperty Name="NumberOfTickets" ColumnName="NumberOfTickets" />
+                <ScalarProperty Name="TicketCategory" ColumnName="TicketCategory" />
+                <ScalarProperty Name="Category" ColumnName="Category" />
+                <ScalarProperty Name="TotalOwing" ColumnName="TotalOwing" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <EntitySetMapping Name="TicketSiteUsers">
+            <EntityTypeMapping TypeName="TicketingModel.TicketSiteUser">
+              <MappingFragment StoreEntitySet="TicketSiteUser">
+                <ScalarProperty Name="Role" ColumnName="Role" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="SeachTicketsWithWildCards" FunctionName="TicketingModel.Store.SeachTicketsWithWildCards">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="TicketingModel.SeachTicketsWithWildCards_Result">
+                <ScalarProperty Name="idx" ColumnName="idx" />
+                <ScalarProperty Name="TicketId" ColumnName="TicketId" />
+                <ScalarProperty Name="TicketNumber" ColumnName="TicketNumber" />
+                <ScalarProperty Name="AgentCode" ColumnName="AgentCode" />
+                <ScalarProperty Name="Category" ColumnName="Category" />
+                <ScalarProperty Name="TicketStatusCode" ColumnName="TicketStatusCode" />
+                <ScalarProperty Name="ArrivedAt" ColumnName="ArrivedAt" />
+                <ScalarProperty Name="ArrivalConfirmedBy" ColumnName="ArrivalConfirmedBy" />
+                <ScalarProperty Name="AgentName" ColumnName="AgentName" />
+                <ScalarProperty Name="TicketStatus" ColumnName="TicketStatus" />
+                <ScalarProperty Name="SoldTo" ColumnName="SoldTo" />
+                <ScalarProperty Name="Zone" ColumnName="Zone" />
+                <ScalarProperty Name="TableNumber" ColumnName="TableNumber" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="UpdateTicketNotesAndPaymentState" FunctionName="TicketingModel.Store.UpdateTicketNotesAndPaymentState" />
+          <FunctionImportMapping FunctionImportName="SeachTickets" FunctionName="TicketingModel.Store.SeachTickets">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="TicketingModel.SeachTickets_Result">
+                <ScalarProperty Name="idx" ColumnName="idx" />
+                <ScalarProperty Name="TicketId" ColumnName="TicketId" />
+                <ScalarProperty Name="TicketNumber" ColumnName="TicketNumber" />
+                <ScalarProperty Name="AgentCode" ColumnName="AgentCode" />
+                <ScalarProperty Name="Category" ColumnName="Category" />
+                <ScalarProperty Name="TicketStatusCode" ColumnName="TicketStatusCode" />
+                <ScalarProperty Name="ArrivedAt" ColumnName="ArrivedAt" />
+                <ScalarProperty Name="ArrivalConfirmedBy" ColumnName="ArrivalConfirmedBy" />
+                <ScalarProperty Name="AgentName" ColumnName="AgentName" />
+                <ScalarProperty Name="TicketStatus" ColumnName="TicketStatus" />
+                <ScalarProperty Name="Zone" ColumnName="Zone" />
+                <ScalarProperty Name="SoldTo" ColumnName="SoldTo" />
+                <ScalarProperty Name="TableNumber" ColumnName="TableNumber" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GetTableAllocations" FunctionName="TicketingModel.Store.GetTableAllocations">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="TicketingModel.GetTableAllocations_Result">
+                <ScalarProperty Name="TableNumber" ColumnName="TableNumber" />
+                <ScalarProperty Name="NumberOfPeople" ColumnName="NumberOfPeople" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GetAtTheDoorSummary" FunctionName="TicketingModel.Store.GetAtTheDoorSummary">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="TicketingModel.GetAtTheDoorSummary_Result">
+                <ScalarProperty Name="TicketCategory" ColumnName="TicketCategory" />
+                <ScalarProperty Name="NumberArrived" ColumnName="NumberArrived" />
+                <ScalarProperty Name="NumberToArrive" ColumnName="NumberToArrive" />
+                <ScalarProperty Name="TotalNumberOfTickets" ColumnName="TotalNumberOfTickets" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
